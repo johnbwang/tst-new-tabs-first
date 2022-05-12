@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "TST New Tabs First",
+  "version": "0.1",
+
+  "description": "New root tabs are placed at the top of the Tree Style Tab sidebar.",
+
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  }
+}
+  
