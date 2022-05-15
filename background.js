@@ -12,7 +12,6 @@ browser.tabs.onCreated.addListener(async (newTab) => {
     type:   'get-tree',
     window: newTab.windowId
   });
-  console.log(JSON.stringify(tabs));
 
   for (let tab of tabs) {
     if (tab.id == newTab.id && tab.ancestorTabIds.length == 0) {
