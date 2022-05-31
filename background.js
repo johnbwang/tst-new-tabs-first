@@ -6,22 +6,44 @@
 
 const TST_ID = 'treestyletab@piro.sakura.ne.jp';
 
-browser.tabs.onCreated.addListener(async (newTab) => {
-  console.log('onCreated');
-  let tabs = await browser.runtime.sendMessage(TST_ID, {
-    type:   'get-tree',
-    window: newTab.windowId
-  });
+async function registerToTST() {
+  try {
+    await browser.runtime.sendMessage(TST_ID, {
+      type: 'register-self' ,
+      name: browser.i18n.getMessage('extensionName'),
+      listeningTypes: [
+        'new-tab-processed',
+      ],
+    });
+  } catch(_error) {
+    // TST is not available
+  }
+}
 
-  for (let tab of tabs) {
-    if (tab.id == newTab.id && tab.ancestorTabIds.length == 0) {
-      browser.tabs.move(newTab.id, {index: getFirstUnpinnedIndexIndex(tabs)});
+registerToTST();
+
+browser.runtime.onMessageExternal.addListener(async (message, sender) => {
+  switch (sender.id) {
+    case TST_ID:
+      switch (message.type) {
+        case 'ready':
+        case 'permissions-changed':
+          registerToTST();
+          break;
+        case 'new-tab-processed':
+          if (message.ancestors.length == 0) {
+            let tabs = await browser.runtime.sendMessage(TST_ID, {
+              type:   'get-tree',
+              window: message.tab.windowId
+            });
+            browser.tabs.move(message.tab.id, {index: getFirstUnpinnedIndex(tabs)})
+          }
+      }
       break;
-    }
   }
 });
 
-function getFirstUnpinnedIndexIndex(tabs) {
+function getFirstUnpinnedIndex(tabs) {
   for (let tab of tabs) {
     if (tab.pinned == false) {
       return tab.index;
