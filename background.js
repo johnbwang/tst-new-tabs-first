@@ -31,7 +31,8 @@ browser.runtime.onMessageExternal.addListener(async (message, sender) => {
           registerToTST();
           break;
         case 'new-tab-processed':
-          if (message.tab.ancestorTabIds.length == 0 && message.restored == false) {
+          if ((message.restored == undefined || message.restored == false)
+            && message.tab.ancestorTabIds.length == 0) {
             let tabs = await browser.runtime.sendMessage(TST_ID, {
               type:   'get-tree',
               window: message.tab.windowId
